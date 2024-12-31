@@ -17,13 +17,12 @@ pipeline {
             }
         }
 
-        stage('Plan'){
+        stage('Plan') {
             steps {
                 sh '''
-                    cd terraform/ ; terraform init
-                    pwd
+                    cd terraform
                     terraform init
-                    terraform plan -out tfplan
+                    terraform plan -out=tfplan
                     terraform show -no-color tfplan > tfplan.txt
                 '''
             }
@@ -33,27 +32,32 @@ pipeline {
             steps {
                 script {
                     def plan = readFile 'terraform/tfplan.txt'
-                    input message: "Do you want to proceed with the Terraform action..?"
-                    parameters: [text{name: 'Plan', description: 'Please review the code/plan once', defaultValue: plan}]
+                    input message: "Do you want to proceed with the Terraform action?",
+                          parameters: [text(name: 'Plan', description: 'Please review the Terraform plan:', defaultValue: plan)]
                 }
             }
         }
 
         stage('Creation/Destroy Stage') {
             when {
-                expression {
-                    return params.terraformAction == 'apply' || params.terraformAction == 'destroy'
-                }
+                expression { params.terraformAction == 'apply' || params.terraformAction == 'destroy' }
             }
             steps {
-                script{
+                script {
                     if (params.terraformAction == 'apply') {
-                        sh "pwd; cd /terraform ; terraform apply -input=false tfplan"
+                        sh '''
+                            cd terraform
+                            terraform apply -input=false tfplan
+                        '''
                     } else if (params.terraformAction == 'destroy') {
-                        sh "pwd; cd /terraform ; terraform destroy -auto-aprove"
+                        sh '''
+                            cd terraform
+                            terraform destroy -auto-approve
+                        '''
                     }
                 }
             }
         }
     }
 }
+
