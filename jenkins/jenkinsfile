@@ -40,21 +40,19 @@ pipeline {
 
         stage('Creation/Destroy Stage') {
             when {
-                expression { params.terraformAction == 'apply' || params.terraformAction == 'destroy' }
+                expression { 
+                    return params.terraformAction == 'apply' || params.terraformAction == 'destroy'
+                }
             }
             steps {
                 script {
-                    if (params.terraformAction == 'apply') {
-                        sh '''
-                            cd terraform
-                            terraform apply -input=false tfplan
-                        '''
-                    } else if (params.terraformAction == 'destroy') {
-                        sh '''
-                            cd terraform
-                            terraform destroy -auto-approve
-                        '''
-                    }
+                    // Make sure you're in the right directory
+                    dir('terraform') {
+                        if (params.terraformAction == 'apply') {
+                            sh 'terraform apply -input=false tfplan'    
+                        } else if (params.terraformAction == 'destroy') {
+                            sh 'terraform destroy -auto-approve'
+                        }
                 }
             }
         }
