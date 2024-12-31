@@ -8,7 +8,7 @@ resource "aws_instance" "instance-1" {
     instance_type = "t2.micro"
     security_groups = ["vadirajv"]
     key_name = "project"
-    user_data = file("grafana.sh")
+    user_data = file("terraform/userdata-file.sh")
     tags = {
         Name = "Grafana-Server"
     }
