@@ -52,7 +52,7 @@ pipeline {
                             sh 'terraform apply -input=false tfplan'    
                         } else if (params.terraformAction == 'destroy') {
                             sh 'terraform destroy -auto-approve'
-                        }
+                    }
                 }
             }
         }
